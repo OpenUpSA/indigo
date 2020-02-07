@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: lawsafrica-indigo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-31 11:58+0200\n"
-"PO-Revision-Date: 2019-07-12 06:48\n"
+"PO-Revision-Date: 2020-02-07 07:47\n"
 "Last-Translator: Greg Kempe (longhotsummer)\n"
 "Language-Team: Tsonga\n"
 "Language: ts_ZA\n"
@@ -18,17 +18,12 @@ msgstr ""
 
 #: templates/indigo_api/akn/_amendments.html:10
 #, python-format
-msgid ""
-"[Amended by <a href=\"%(resolver_uri)s\" class=\"amending-title\">"
-"%(amending_title)s (%(amending_numtitle)s)</a> on <span class=\"amendment-"
-"date\">%(date)s</span>]"
+msgid "[Amended by <a href=\"%(resolver_uri)s\" class=\"amending-title\">%(amending_title)s (%(amending_numtitle)s)</a> on <span class=\"amendment-date\">%(date)s</span>]"
 msgstr ""
 
 #: templates/indigo_api/akn/_amendments.html:12
 #, python-format
-msgid ""
-"[Amended by <a href=\"%(resolver_uri)s\" class=\"amending-title\">"
-"%(amending_title)s</a> on <span class=\"amendment-date\">%(date)s</span>]"
+msgid "[Amended by <a href=\"%(resolver_uri)s\" class=\"amending-title\">%(amending_title)s</a> on <span class=\"amendment-date\">%(date)s</span>]"
 msgstr ""
 
 #: templates/indigo_api/akn/coverpage_act.html:39
@@ -75,11 +70,10 @@ msgid "Up to date as at %(date)s"
 msgstr ""
 
 #: templates/indigo_api/akn/coverpage_act.html:92
-msgid ""
-"Note: The original publication document is not available and this content "
-"could not be verified."
+msgid "Note: The original publication document is not available and this content could not be verified."
 msgstr ""
 
 #: templates/indigo_api/akn/export/standalone.html:17
 msgid "Table of Contents"
 msgstr ""
+
