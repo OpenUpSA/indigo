@@ -835,6 +835,8 @@ class RefsFinderSubtypesENGTestCase(TestCase):
           <paragraph eId="sec_1.paragraph-0">
             <content>
               <p>Something to do with GN no 102 of 2012.</p>
+              <p>Something to do with Government Notice 102 of 2012.</p>
+              <p>Something to do with GN 102/2012.</p>
               <p>And another thing about SI 4 of 1998.</p>
             </content>
           </paragraph>
@@ -852,6 +854,8 @@ class RefsFinderSubtypesENGTestCase(TestCase):
           <paragraph eId="sec_1.paragraph-0">
             <content>
               <p>Something to do with <ref href="/akn/za/act/gn/2012/102">GN no 102 of 2012</ref>.</p>
+              <p>Something to do with <ref href="/akn/za/act/gn/2012/102">Government Notice 102 of 2012</ref>.</p>
+              <p>Something to do with <ref href="/akn/za/act/gn/2012/102">GN 102/2012</ref>.</p>
               <p>And another thing about <ref href="/akn/za/act/si/1998/4">SI 4 of 1998</ref>.</p>
             </content>
           </paragraph>
@@ -860,9 +864,91 @@ class RefsFinderSubtypesENGTestCase(TestCase):
             language=self.eng)
 
         self.finder.find_references_in_document(document)
-        root = etree.fromstring(expected.content)
-        expected.content = etree.tostring(root, encoding='utf-8').decode('utf-8')
-        self.assertEqual(expected.content, document.content)
+        self.assertEqual(
+            etree.tostring(etree.fromstring(expected.content), encoding='utf-8').decode('utf-8'),
+            document.content)
+
+    def test_find_longer(self):
+        document = Document(
+            work=self.work,
+            document_xml=document_fixture(
+                xml="""
+        <section eId="sec_1">
+          <num>1.</num>
+          <heading>Tester</heading>
+          <paragraph eId="sec_1.paragraph-0">
+            <content>
+              <p>Something to do with GN no 102 published on 5 March 2012.</p>
+              <p>And another thing about SI 4, published in Government Gazette 12345 of 31 January 1998.</p>
+            </content>
+          </paragraph>
+        </section>"""
+            ),
+            language=self.eng)
+
+        expected = Document(
+            work=self.work,
+            document_xml=document_fixture(
+                xml="""
+        <section eId="sec_1">
+          <num>1.</num>
+          <heading>Tester</heading>
+          <paragraph eId="sec_1.paragraph-0">
+            <content>
+              <p>Something to do with <ref href="/akn/za/act/gn/2012/102">GN no 102 published on 5 March 2012</ref>.</p>
+              <p>And another thing about <ref href="/akn/za/act/si/1998/4">SI 4, published in Government Gazette 12345 of 31 January 1998</ref>.</p>
+            </content>
+          </paragraph>
+        </section>"""
+            ),
+            language=self.eng)
+
+        self.finder.find_references_in_document(document)
+        self.assertEqual(
+            etree.tostring(etree.fromstring(expected.content), encoding='utf-8').decode('utf-8'),
+            document.content)
+
+    def test_no_year(self):
+        document = Document(
+            work=self.work,
+            document_xml=document_fixture(
+                xml="""
+        <section eId="sec_1">
+          <num>1.</num>
+          <heading>Tester</heading>
+          <paragraph eId="sec_1.paragraph-0">
+            <content>
+              <p>Something to do with GN no 102 published on 5 March.</p>
+              <p>And another thing about SI 4, published in Government Gazette 
+12345 of 31 January.</p>
+            </content>
+          </paragraph>
+        </section>"""
+            ),
+            language=self.eng)
+
+        expected = Document(
+            work=self.work,
+            document_xml=document_fixture(
+                xml="""
+        <section eId="sec_1">
+          <num>1.</num>
+          <heading>Tester</heading>
+          <paragraph eId="sec_1.paragraph-0">
+            <content>
+              <p>Something to do with GN no 102 published on 5 March.</p>
+              <p>And another thing about SI 4, published in Government Gazette 
+12345 of 31 January.</p>
+            </content>
+          </paragraph>
+        </section>"""
+            ),
+            language=self.eng)
+
+        self.finder.find_references_in_document(document)
+        self.assertEqual(
+            etree.tostring(etree.fromstring(expected.content), encoding='utf-8').decode('utf-8'),
+            document.content)
 
 
 class RefsFinderCapENGTestCase(TestCase):

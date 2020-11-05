@@ -83,6 +83,7 @@ class RefsFinderSubtypesENG(BaseRefsFinder):
         P 52 of 2001
         Ordinance no. 52 of 1998
         GN 1/2009
+        General Notice 12 published in Gazette 12345 of 2019
 
     """
 
@@ -99,28 +100,27 @@ class RefsFinderSubtypesENG(BaseRefsFinder):
             super().setup(root)
 
     def setup_subtypes(self):
-        self.subtypes = [s for s in Subtype.objects.all()]
-        self.subtype_names = [s.name for s in self.subtypes]
-        self.subtype_abbreviations = [s.abbreviation for s in self.subtypes]
-
-        self.subtypes_string = '|'.join([re.escape(s) for s in self.subtype_names + self.subtype_abbreviations])
+        self.full_subtypes = Subtype.objects.all()
+        self.subtypes = [s.name for s in self.full_subtypes] + \
+                        [s.abbreviation for s in self.full_subtypes]
 
     def setup_candidate_xpath(self):
-        xpath_contains = " or ".join([f"contains(translate(., '{subtype.upper()}', '{subtype.lower()}'), "
-                                      f"'{subtype.lower()}')"
-                                      for subtype in self.subtype_names + self.subtype_abbreviations])
+        xpath_contains = " or ".join(
+            [f"contains(translate(., '{s.upper()}', '{s.lower()}'), "
+             f"'{s.lower()}')"
+             for s in self.subtypes])
         self.candidate_xpath = f".//text()[({xpath_contains}) and not(ancestor::a:ref)]"
 
     def setup_pattern_re(self):
-        # TODO: disregard e.g. "6 May" in "GN 34 of 6 May 2020", but catch reference
+        subtypes_for_re = '|'.join([re.escape(s) for s in self.subtypes])
         self.pattern_re = re.compile(
             fr'''
                 (?P<ref>
-                    (?P<subtype>{self.subtypes_string})\s*
+                    (?P<subtype>{subtypes_for_re})\s*
                     (No\.?\s*)?
                     (?P<num>\d+)
-                    (\s+of\s+|/)
-                    (?P<year>\d{{4}})
+                    .{{0,60}}(\s|/)
+                    (?P<year>\d{{4}})\b
                 )
             ''', re.X | re.I)
 
@@ -131,17 +131,19 @@ class RefsFinderSubtypesENG(BaseRefsFinder):
 
     def make_href(self, match):
         # use correct subtype for FRBR URI
-        subtype = match.group('subtype')
-        for s in self.subtypes:
-            if subtype.lower() == s.name.lower() or subtype.lower() == s.abbreviation.lower():
-                subtype = s.abbreviation
+        subtype = match.group('subtype').lower()
+        subtype_for_uri = None
+        for s in self.full_subtypes:
+            if subtype == s.name.lower() or subtype == s.abbreviation.lower():
+                subtype_for_uri = s.abbreviation
                 break
 
         place = f'{self.frbr_uri.country}'
         if self.frbr_uri.locality:
             place = f'{self.frbr_uri.country}-{self.frbr_uri.locality}'
 
-        return f'/akn/{place}/act/{subtype}/{match.group("year")}/{match.group("num")}'
+        if subtype_for_uri:
+            return f'/akn/{place}/act/{subtype_for_uri}/{match.group("year")}/{match.group("num")}'
 
 
 @plugins.register('refs-cap')
